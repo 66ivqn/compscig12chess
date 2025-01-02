@@ -1,0 +1,54 @@
+import pygame as p
+import ChessEngine
+
+p.display.set_caption('Comp Sci Chess')
+width = height = 512
+dimension = 8 #8x8 board
+s_size = height // dimension
+max_fps = 15
+images = {}
+
+def loadImages():
+    pieces = ['wp', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bp', 'bR', 'bN', 'bB', 'bK', 'bQ']
+    for piece in pieces:
+        images[piece] = p.transform.scale(p.image.load("/My Drive/Grade 12 Comp Sci/Chess_Project/" + piece + ".png"), (s_size,s_size))
+
+
+def main():
+    p.init()
+    screen = p.display.set_mode((width,height))
+    clock = p.time.Clock()
+    screen.fill(p.Color("white"))
+    gs = ChessEngine.GameState()
+    loadImages()
+    running = True
+
+    while running:
+        for e in p.event.get():
+            if e.type == p.QUIT:
+                running = False
+        
+        drawGameState(screen, gs)
+        clock.tick(max_fps)
+        p.display.flip()
+
+def drawGameState(screen, gs):
+    drawBoard(screen) #draw squares on the board
+    drawPieces(screen, gs.board) #draw pieces on the board
+
+def drawBoard(screen):
+    colours = [p.Color("grey"), p.Color("red")]
+    for r in range(dimension):
+        for c in range (dimension):
+            color = colours[((r+c) % 2)]
+            p.draw.rect(screen, color, p.Rect(c*s_size, r*s_size, s_size, s_size))
+
+def drawPieces(screen, board):
+    for r in range (dimension):
+        for c in range (dimension):
+            piece = board[r][c]
+            if piece != "--": #if not an empty square
+                screen.blit(images[piece], p.Rect(c*s_size, r*s_size, s_size,s_size))
+
+if __name__ == "__main__":
+    main()
