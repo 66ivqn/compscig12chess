@@ -1,5 +1,10 @@
+#Connor Elliott
+#January 5th, 2025
+#Creating a chess game which has 2 game modes which can be selected in the menu, Player vs Player and Player vs AI.
+
 import pygame as p
 import ChessEngine, SmartMoveFinder
+#reading from the other two files
 
 p.display.set_caption('Comp Sci Chess')
 width = height = 512
@@ -10,8 +15,10 @@ images = {}
 
 def loadImages():
     pieces = ['wp', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bp', 'bR', 'bN', 'bB', 'bK', 'bQ']
+    #loads all the chess piece images
     for piece in pieces:
         images[piece] = p.transform.scale(p.image.load("/My Drive/Grade 12 Comp Sci/Chess_Project/" + piece + ".png"), (s_size,s_size))
+        #locates images from my drive
 
 
 def main():
@@ -35,6 +42,8 @@ def main():
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+                #stops game from running if it is closed
+
             #mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
                 if not gameOver and humanTurn:
@@ -53,9 +62,11 @@ def main():
                         print(move.getChessNotation())
                         for i in range(len(validMoves)):
                             if move == validMoves[i]:
+                                #if the move is in the list of valid moves
                                 gs.makeMove(validMoves[i])
                                 moveMade = True
                                 animate = True
+                                #makes the move and uses the animations
                                 s_selected = () #reset user clicks
                                 p_clicks = [] #resets player clicks
                         if not moveMade:
@@ -66,7 +77,7 @@ def main():
                     gs.undoMove()
                     moveMade = True
                     animate = False
-                if e.key == p.K_x: #reset game if r button is clicked
+                if e.key == p.K_x: #reset game if 'x' button is clicked
                     gs = ChessEngine.GameState()
                     validMoves = gs.getValidMoves()
                     s_selected = ()
@@ -74,15 +85,19 @@ def main():
                     moveMade = False
                     animate = False
                     gameOver = False
+                    #reset all the variable if 'x' is clicked
 
         #AI move finder logic
         if not gameOver and not humanTurn:
             AIMove = SmartMoveFinder.findBestMove(gs, validMoves)
+            #calls the function from the SmartMoveFinder program to run
             if AIMove is None:
                 AIMove = SmartMoveFinder.findRandomMove(validMoves)
+                #if it can't find a move that gets a good score within 3 moves ahead, it picks a random move out of the valid moves
             gs.makeMove(AIMove)
             moveMade = True
             animate = True
+            #makes the move and animates the piece
                     
 
         if moveMade:
@@ -91,6 +106,7 @@ def main():
             validMoves = gs.getValidMoves()
             moveMade = False
             animate = False
+            #reset variables after the move has been made
 
         drawGameState(screen, gs, validMoves, s_selected)
 
@@ -98,11 +114,14 @@ def main():
             gameOver = True
             if gs.whiteToMove:
                 drawText(screen, 'Black wins by checkmate')
+                #if it's whites move and a checkmate, it says that black wins by checkmate
             else:
                 drawText(screen, 'White wins by checkmate')
+                #if it's blacks move and a checkmate, it says that white wins by checkmate
         elif gs.staleMate:
             gameOver = True
             drawText(screen, 'Stalemate')
+            #if it's a stalemate, it ends the game and it says stalemate
 
         clock.tick(max_fps)
         p.display.flip()
@@ -122,6 +141,7 @@ def highlightSquares(screen, gs, validMoves, s_selected):
             for move in validMoves:
                 if move.startRow == r and move.startCol == c:
                     screen.blit(s, (move.endCol*s_size, move.endRow*s_size))
+                    #if the move is valid, it animates the move by going along the column and row the piece is moving to
 
 
 
@@ -134,23 +154,30 @@ def drawGameState(screen, gs, validMoves, s_selected):
 def drawBoard(screen):
     global colours
     colours = [p.Color("gray"), p.Color("red")]
+    #gray and red squares on the board
     for r in range(dimension):
         for c in range (dimension):
             color = colours[((r+c) % 2)]
+            #uses the remainder to determine what colour the square is.
             p.draw.rect(screen, color, p.Rect(c*s_size, r*s_size, s_size, s_size))
+            #size of the squares
 
 def drawPieces(screen, board):
+    #used to draw the pieces on the board
     for r in range (dimension):
         for c in range (dimension):
             piece = board[r][c]
             if piece != "--": #if not an empty square
                 screen.blit(images[piece], p.Rect(c*s_size, r*s_size, s_size,s_size))
+                #adds the images onto the proper square on the board
 
 #Animating moves
 def animatedMove(move, screen, board, clock):
     global colours
     dR = move.endRow - move.startRow
+    #distance it has to move in a row
     dC = move.endCol - move.startCol
+    #distance it has to move in a column
     framesPerSquare = 10 #frames moved one square
     frameCount = (abs(dR) + abs(dC)) * framesPerSquare
     for frame in range(frameCount + 1):
@@ -172,15 +199,21 @@ def animatedMove(move, screen, board, clock):
 
 def drawText(screen, text):
     font = p.font.SysFont("Helvitca", 32, True, False)
+    #creatign the font of the checkmate and stalemate text
     textObject = font.render(text, 0, p.Color('Black'))
+    #creates a black text for checkmate and stalemate
     textLocation = p.Rect(0, 0, width, height).move(width/2 - textObject.get_width()/2, height/2 - textObject.get_height()/2)
+    #location of the text
     screen.blit(textObject, textLocation)
+    #adds text top screen
     textObject = font.render(text, 0, p.Color("white"))
+    #creates the offsetting white text creating a shadow effect
     screen.blit(textObject, textLocation.move(2,2))
 
 
 if __name__ == "__main__":
     main()
+    #runs main function
 
 
-# https://www.youtube.com/@eddiesharick6649
+# https://www.youtube.com/@eddiesharick6649 Eddie's tutorials helped guide me through the chess process teachig me about the process as it goes. Very helpful and helped me learn through his video series.
